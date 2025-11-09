@@ -21,7 +21,9 @@
             --color-destaque: #00B16A;
         }
         
-        .hidden-view { display: none; }
+        /* ATUALIZADO: !important garante que esconda mesmo se tiver 'flex' ou 'grid' do Tailwind */
+        .hidden-view { display: none !important; }
+        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
