@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copa do Mundo 2027</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carregando ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* Fonte Inter para um visual moderno e limpo */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+
+        /* Cores customizadas */
+        :root {
+            --color-mestra-bg: #121212;
+            --color-mestra-card: #1E1E1E;
+            --color-mestra-texto: #E0E0E0;
+            --color-mestra-ouro: #FFD700;
+            --color-destaque: #00B16A;
+        }
+        
+        .hidden-view { display: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slideUp { animation: slideUp 0.3s ease-out forwards; }
+        @keyframes pulse-red { 0%, 100% { color: #ef4444; } 50% { color: #f87171; } }
+        .animate-pulse-red { animation: pulse-red 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        app: {
+                            bg: '#121212', card: '#1E1E1E', text: '#E0E0E0', gold: '#FFD700', highlight: 'var(--color-destaque)',
+                        }
+                    },
+                    boxShadow: {
+                        'gold-glow': '0 0 15px rgba(255, 215, 0, 0.1)',
+                    },
+                    zIndex: {
+                        'header': '100', // Z-index alto para o header
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-app-bg text-app-text min-h-screen pb-24 transition-colors duration-300">
+
+    <!-- HEADER GLOBAL (CENTRALIZADO E SEM ÍCONE DE USUÁRIO) -->
+    <header class="bg-app-card p-4 sticky top-0 z-header border-b border-[#333333] flex justify-center items-center shadow-md">
+        <h1 class="text-xl font-bold flex items-center gap-2">
+            <i data-lucide="trophy" class="text-app-gold w-6 h-6"></i>
+            <span class="text-app-gold tracking-wider">Copa do Mundo 2027</span>
+        </h1>
+    </header>
+
+    <!-- NOVO: BANNER GLOBAL DE JOGOS EM ANDAMENTO -->
+    <div id="global-live-banner" class="hidden flex-col bg-gradient-to-r from-red-900/20 to-app-bg border-b border-red-900/30 animate-fadeIn">
+        <!-- Preenchido via JS -->
+    </div>
+
+    <!-- NAVEGAÇÃO DE CONTINENTES -->
+    <nav id="continent-nav" class="bg-app-bg py-4 px-4 overflow-x-auto whitespace-nowrap border-b border-[#333333] transition-all duration-300 no-scrollbar sticky top-[60px] z-50">
+        <div class="flex space-x-4" id="continent-tabs">
+            <button onclick="switchContinent('americas')" id="tab-americas" class="continent-tab active-tab px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all duration-300"><span class="dot w-2 h-2 rounded-full bg-current inline-block"></span>Américas</button>
+            <button onclick="switchContinent('europa')" id="tab-europa" class="continent-tab inactive-tab px-4 py-2 rounded-full font-medium text-sm transition-all duration-300"><span class="dot w-2 h-2 rounded-full bg-current inline-block hidden"></span>Europa</button>
+            <button onclick="switchContinent('africa')" id="tab-africa" class="continent-tab inactive-tab px-4 py-2 rounded-full font-medium text-sm transition-all duration-300"><span class="dot w-2 h-2 rounded-full bg-current inline-block hidden"></span>África</button>
+            <button onclick="switchContinent('asia')" id="tab-asia" class="continent-tab inactive-tab px-4 py-2 rounded-full font-medium text-sm transition-all duration-300"><span class="dot w-2 h-2 rounded-full bg-current inline-block hidden"></span>Ásia/Oceania</button>
+        </div>
+    </nav>
+
+    <!-- ÁREA DE CONTEÚDO PRINCIPAL -->
+    <main class="p-4 max-w-md mx-auto md:max-w-2xl lg:max-w-4xl">
+        
+        <!-- VISÃO 1: TABELAS -->
+        <section id="view-tabelas" class="view-section">
+            <div class="mb-4 mt-2">
+                <h2 class="text-2xl font-bold text-app-highlight transition-colors duration-300" id="section-title">Classificação - Américas</h2>
+                <p class="text-gray-400 text-sm" id="condominio-name">Condomínio A - Fase de Grupos</p>
+            </div>
+            <!-- Navegação interna Tabelas (Agora com 3 botões) -->
+            <div class="flex p-1 bg-[#2A2A2A] rounded-lg mb-4">
+                <button onclick="switchSubView('classificacao')" id="sub-btn-classificacao" class="flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md bg-app-highlight text-app-bg transition-all duration-300">Classificação</button>
+                <button onclick="switchSubView('cartoes')" id="sub-btn-cartoes" class="flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300">Cartões</button>
+                <button onclick="switchSubView('suspensoes')" id="sub-btn-suspensoes" class="flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300">Suspensões</button>
+            </div>
+            <div class="bg-app-card rounded-xl overflow-hidden shadow-lg border border-[#333333]">
+                <div class="overflow-x-auto no-scrollbar">
+                    <div class="min-w-[100%]"> <!-- Removido min-w fixo para adaptar melhor se possível, mas mantendo scroll se necessário -->
+                         <div id="table-header" class="grid grid-cols-12 bg-[#2A2A2A] p-3 text-xs font-semibold text-gray-400 uppercase tracking-wider text-center"><!-- Preenchido via JS --></div>
+                        <div id="main-list" class="divide-y divide-[#333333]"><!-- Preenchido via JS --></div>
+                    </div>
+                </div>
+                 <div id="table-footer" class="bg-[#252525] p-3 text-xs text-gray-500 flex items-center gap-2 sticky left-0"><!-- Preenchido via JS --></div>
+            </div>
+        </section>
+
+        <!-- VISÃO 2: JOGOS -->
+        <section id="view-jogos" class="view-section hidden-view">
+            <div class="mb-6 mt-2">
+                <h2 class="text-2xl font-bold text-app-highlight transition-colors duration-300" id="games-title">Jogos - Américas</h2>
+                <p class="text-gray-400 text-sm">Rodada Atual e Anteriores</p>
+            </div>
+            <div class="space-y-4" id="games-list-container">
+                <!-- Preenchido via JS com os jogos -->
+            </div>
+        </section>
+
+        <!-- VISÃO 3: COPA DO MUNDO -->
+        <section id="view-copa" class="view-section hidden-view">
+            <div class="mb-8 mt-2 text-center">
+                <i data-lucide="trophy" class="w-16 h-16 text-app-gold mx-auto mb-2"></i>
+                <h2 class="text-3xl font-bold text-app-gold tracking-widest">FASE FINAL</h2>
+                <p class="text-app-gold/70 text-sm font-medium uppercase tracking-wider">Mata-Mata</p>
+            </div>
+            <div class="space-y-8 relative pb-10">
+                <div class="absolute left-1/2 top-4 bottom-4 w-0.5 bg-app-gold/30 shadow-[0_0_8px_rgba(255,215,0,0.3)] -translate-x-1/2 z-0"></div>
+                <div id="copa-matches-container" class="space-y-8 relative z-10"><!-- Preenchido via JS --></div>
+            </div>
+        </section>
+
+        <!-- VISÃO 4: ESTATÍSTICAS GERAIS -->
+        <section id="view-stats" class="view-section hidden-view">
+            <div class="mb-6 mt-2">
+                <h2 class="text-2xl font-bold text-app-gold" id="stats-title">Estatísticas Gerais</h2>
+                <p class="text-gray-400 text-sm">Dados acumulados da Copa 2027</p>
+            </div>
+
+            <!-- Navegação interna de Estatísticas (ATUALIZADO COM 3 BOTÕES) -->
+            <div class="flex p-1 bg-[#2A2A2A] rounded-lg mb-6">
+                <button onclick="switchStatsView('artilharia')" id="stats-btn-artilharia" class="flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md bg-app-gold text-app-bg transition-all duration-300">Artilharia</button>
+                <button onclick="switchStatsView('cartoes_geral')" id="stats-btn-cartoes_geral" class="flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300">Ranking de Cartões</button>
+                <button onclick="switchStatsView('jogadores')" id="stats-btn-jogadores" class="flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300">Jogadores</button>
+            </div>
+
+            <div class="bg-app-card rounded-xl overflow-hidden shadow-lg border border-app-gold/30">
+                <!-- Header da Tabela de Stats (Dinâmico) -->
+                <div id="stats-table-header" class="grid grid-cols-12 bg-app-gold/10 p-3 text-xs font-semibold text-app-gold uppercase tracking-wider text-center">
+                    <!-- Preenchido via JS -->
+                </div>
+                <!-- Lista de Stats (Dinâmica) -->
+                <div id="stats-list" class="divide-y divide-[#333333]">
+                    <!-- Preenchido via JS -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- MODAL ESTATÍSTICAS DE JOGO -->
+    <div id="match-stats-modal" class="fixed inset-0 z-[110] hidden flex items-end sm:items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onclick="closeMatchStats()"></div>
+        <div class="bg-[#1E1E1E] w-full max-w-md rounded-2xl shadow-2xl border border-[#333] relative z-10 animate-slideUp overflow-hidden">
+            <div class="bg-[#252525] p-4 flex justify-between items-center border-b border-[#333]">
+                <h3 class="text-app-text font-bold" id="modal-title">Estatísticas da Partida</h3>
+                <button onclick="closeMatchStats()" class="text-gray-400 hover:text-white p-1"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-4">
+                <div class="flex items-center justify-center gap-6 mb-6">
+                    <!-- ATUALIZADO: min-w-0 e truncate para evitar quebra de layout em nomes longos no modal -->
+                    <div class="text-center flex-1 min-w-0"><span class="text-3xl block mb-1" id="modal-flagA"></span><p class="font-bold text-sm sm:text-base truncate px-1" id="modal-teamA"></p></div>
+                    <div class="text-3xl font-bold bg-[#121212] px-4 py-2 rounded-lg text-app-text border border-[#333] mx-2 shrink-0" id="modal-score"></div>
+                    <div class="text-center flex-1 min-w-0"><span class="text-3xl block mb-1" id="modal-flagB"></span><p class="font-bold text-sm sm:text-base truncate px-1" id="modal-teamB"></p></div>
+                </div>
+                <div class="mb-6">
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="goal" class="w-4 h-4"></i> Gols</h4>
+                    <div id="modal-goals-container" class="grid grid-cols-2 gap-4 text-sm">
+                        <div id="modal-goals-teamA" class="space-y-2"></div>
+                        <div id="modal-goals-teamB" class="space-y-2 text-right"></div>
+                    </div>
+                    <div id="modal-goals-empty" class="hidden text-sm text-gray-500 italic text-center">Sem gols.</div>
+                </div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2"><i data-lucide="rectangle-vertical" class="w-4 h-4 rotate-90"></i> Cartões</h4>
+                    <div id="modal-cards-container" class="grid grid-cols-2 gap-4 text-sm">
+                         <div id="modal-cards-teamA" class="space-y-2"></div>
+                         <div id="modal-cards-teamB" class="space-y-2 text-right"></div>
+                    </div>
+                     <div id="modal-cards-empty" class="hidden text-sm text-gray-500 italic text-center">Sem cartões.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVEGAÇÃO INFERIOR -->
+    <nav class="fixed bottom-0 w-full bg-app-card border-t border-[#333333] py-2 px-4 flex justify-between items-center text-xs z-50">
+        <button onclick="switchView('tabelas')" id="nav-tabelas" class="nav-item flex flex-col items-center text-app-highlight gap-1 transition-colors duration-300 w-1/5"><i data-lucide="table-2" class="w-6 h-6"></i><span class="font-semibold">Tabelas</span></button>
+        <!-- ATUALIZADO: Botão Jogos com indicador de Live (bolinha vermelha) -->
+        <button onclick="switchView('jogos')" id="nav-jogos" class="nav-item relative flex flex-col items-center text-gray-500 gap-1 w-1/5">
+            <div class="relative">
+                <i data-lucide="calendar" class="w-6 h-6"></i>
+                <span id="nav-live-indicator" class="absolute -top-1 -right-1 w-3 h-3 bg-red-500 border-2 border-app-card rounded-full hidden animate-pulse"></span>
+            </div>
+            <span>Jogos</span>
+        </button>
+        <div class="w-1/5 flex justify-center"><button onclick="switchView('copa')" id="nav-copa" class="flex items-center justify-center bg-[#2A2A2A] text-gray-500 w-14 h-14 rounded-full -mt-8 border-4 border-app-bg shadow-lg shadow-black/50 transition-all duration-300"><i data-lucide="trophy" class="w-7 h-7"></i></button></div>
+        <button onclick="switchView('stats')" id="nav-stats" class="nav-item flex flex-col items-center text-gray-500 gap-1 w-1/5"><i data-lucide="bar-chart-3" class="w-6 h-6"></i><span>Estatísticas</span></button>
+        <!-- BOTÃO LOGIN ATUALIZADO -->
+        <button class="nav-item flex flex-col items-center text-gray-500 gap-1 w-1/5"><i data-lucide="log-in" class="w-6 h-6"></i><span>Login</span></button>
+    </nav>
+
+    <script>
+        lucide.createIcons();
+
+        // --- DADOS ---
+        const generalScorers = [
+            { pos: 1, name: "M. Salah", team: "Egito", flag: "🇪🇬", goals: 14 },
+            { pos: 2, name: "K. Mbappé", team: "França", flag: "🇫🇷", goals: 12 },
+            { pos: 3, name: "Vini Jr", team: "Brasil", flag: "🇧🇷", goals: 11 },
+            { pos: 4, name: "H. Son", team: "Coreia", flag: "🇰🇷", goals: 9 },
+            { pos: 5, name: "L. Messi", team: "Argentina", flag: "🇦🇷", goals: 8 }
+        ];
+
+        const generalTeamCards = [
+            { pos: 1, team: "Argentina", flag: "🇦🇷", yellow: 18, red: 2 },
+            { pos: 2, name: "Chile", flag: "🇨🇱", yellow: 15, red: 3 },
+            { pos: 3, team: "Brasil", flag: "🇧🇷", yellow: 14, red: 0 },
+            { pos: 4, team: "Portugal", flag: "🇵🇹", yellow: 12, red: 1 },
+            { pos: 5, team: "Irã", flag: "🇮🇷", yellow: 10, red: 0 }
+        ];
+
+        // NOVO: DADOS DOS ELENCOS (MOCKUP)
+        const mockPlayersData = {
+            "Brasil": {
+                flag: "🇧🇷",
+                players: [
+                    { name: "Alisson", num: 1, photo: "A" }, { name: "Danilo", num: 2, photo: "D" },
+                    { name: "Marquinhos", num: 4, photo: "M" }, { name: "Casemiro", num: 5, photo: "C" },
+                    { name: "Vini Jr", num: 7, photo: "V" }, { name: "Neymar Jr", num: 10, photo: "N" },
+                    { name: "Raphinha", num: 11, photo: "R" }, { name: "Richarlison", num: 9, photo: "R" }
+                ]
+            },
+            "Argentina": {
+                flag: "🇦🇷",
+                players: [
+                    { name: "E. Martínez", num: 23, photo: "E" }, { name: "Molina", num: 26, photo: "M" },
+                    { name: "C. Romero", num: 13, photo: "C" }, { name: "Otamendi", num: 19, photo: "O" },
+                    { name: "De Paul", num: 7, photo: "D" }, { name: "Messi", num: 10, photo: "M" },
+                    { name: "Di María", num: 11, photo: "D" }, { name: "J. Alvarez", num: 9, photo: "J" }
+                ]
+            },
+            "França": {
+                flag: "🇫🇷",
+                players: [
+                    { name: "Maignan", num: 16, photo: "M" }, { name: "Koundé", num: 5, photo: "K" },
+                    { name: "Upamecano", num: 4, photo: "U" }, { name: "T. Hernández", num: 22, photo: "T" },
+                    { name: "Griezmann", num: 7, photo: "G" }, { name: "Mbappé", num: 10, photo: "M" }
+                ]
+            }
+            // Adicione mais times conforme necessário para teste
+        };
+
+        const copaMatchesData = [
+            { id: 'qf1', stage: 'Quartas', status: 'past', teamA: 'Brasil', flagA: '🇧🇷', scoreA: 2, teamB: 'Itália', flagB: '🇮🇹', scoreB: 1, details: { goals: [{player:"Vini Jr",team:'A'},{player:"Rodrygo",team:'A'},{player:"Barella",team:'B'}], cards: [{player:"Danilo",team:'A',type:'yellow'}] } },
+            { id: 'qf2', stage: 'Quartas', status: 'past', teamA: 'França', flagA: '🇫🇷', scoreA: 3, teamB: 'Nigéria', flagB: '🇳🇬', scoreB: 0, details: { goals: [{player:"Mbappé",team:'A'},{player:"Mbappé",team:'A'},{player:"Griezmann",team:'A'}], cards: [] } },
+            { id: 'qf3', stage: 'Quartas', status: 'past', teamA: 'Camarões', flagA: '🇨🇲', scoreA: 0, teamB: 'Japão', flagB: '🇯🇵', scoreB: 1, details: { goals: [{player:"Mitoma",team:'B'}], cards: [{player:"Onana",team:'A',type:'yellow'}] } },
+            { id: 'qf4', stage: 'Quartas', status: 'past', teamA: 'Coreia', flagA: '🇰🇷', scoreA: 1, teamB: 'Argentina', flagB: '🇦🇷', scoreB: 2, details: { goals: [{player:"Son",team:'A'},{player:"Messi",team:'B'},{player:"Alvarez",team:'B'}], cards: [] } },
+            { id: 'sf1', stage: 'Semifinal', status: 'past', teamA: 'Brasil', flagA: '🇧🇷', scoreA: 1, teamB: 'França', flagB: '🇫🇷', scoreB: 2, details: { goals: [{player:"Neymar",team:'A'},{player:"Mbappé",team:'B'},{player:"Tchouameni",team:'B'}], cards: [{player:"Casemiro",team:'A',type:'yellow'}] } },
+            { id: 'sf2', stage: 'Semifinal', status: 'future', teamA: 'Japão', flagA: '🇯🇵', teamB: 'Argentina', flagB: '🇦🇷', date: 'Hoje, 20:00', local: 'Arena Principal' },
+            { id: '3rd', stage: 'Disputa de 3º', status: 'future', teamA: 'Brasil', flagA: '🇧🇷', teamB: 'Perd. SF2', flagB: '❓', date: 'Sábado, 16:00', local: 'Estádio Solar' },
+            { id: 'final', stage: 'Grande Final', status: 'future', teamA: 'França', flagA: '🇫🇷', teamB: 'Venc. SF2', flagB: '❓', date: 'Domingo, 16:00', local: 'Arena Principal', isFinal: true }
+        ];
+
+        const continentsData = {
+            'americas': { 
+                color: '#00B16A', title: 'Américas', condominio: 'Condomínio A', 
+                teams: [ 
+                    { pos: 1, name: 'Brasil', flag: '🇧🇷', pts: 18, j: 7, v: 6, e: 0, d: 1, gp: 18, gc: 6, sg: '+12', playingNow: false }, 
+                    { pos: 2, name: 'Argentina', flag: '🇦🇷', pts: 15, j: 7, v: 5, e: 0, d: 2, gp: 15, gc: 7, sg: '+8', playingNow: false }, 
+                    { pos: 3, name: 'Uruguai', flag: '🇺🇾', pts: 15, j: 8, v: 5, e: 0, d: 3, gp: 11, gc: 8, sg: '+3', playingNow: true, liveResult: 'v' }, 
+                    { pos: 4, name: 'Colômbia', flag: '🇨🇴', pts: 9, j: 8, v: 3, e: 0, d: 5, gp: 7, gc: 9, sg: '-2', playingNow: true, liveResult: 'd' }, 
+                    { pos: 5, name: 'Chile', flag: '🇨🇱', pts: 4, j: 7, v: 1, e: 1, d: 5, gp: 5, gc: 10, sg: '-5', playingNow: false } 
+                ], 
+                cards: [ { name: "Neymar Jr", team: "Brasil", flag: "🇧🇷", yellow: 2, red: 0 }, { name: "C. Romero", team: "Argentina", flag: "🇦🇷", yellow: 0, red: 1 } ], 
+                suspensions: [ { name: "C. Romero", team: "Argentina", flag: "🇦🇷", reason: "Cartão Vermelho", games_left: 1 } ],
+                games: [
+                    { type: 'live', teamA: 'Uruguai', flagA: '🇺🇾', scoreA: 2, teamB: 'Colômbia', flagB: '🇨🇴', scoreB: 0, local: 'Solar', details: { goals: [{player:"Darwin Núñez", team:'A'}, {player:"Darwin Núñez", team:'A'}], cards: [{player:"L. Díaz", team:'B', type:'yellow'}] } },
+                    { type: 'past', round: 'Rodada 7', teamA: 'Brasil', flagA: '🇧🇷', scoreA: 4, teamB: 'Chile', flagB: '🇨🇱', scoreB: 1, details: { goals: [ { player: "Vini Jr", team: 'A' }, { player: "Vini Jr", team: 'A' }, { player: "Neymar Jr (P)", team: 'A' }, { player: "Raphinha", team: 'A' }, { player: "A. Sánchez", team: 'B' } ], cards: [ { player: "Casemiro", team: 'A', type: 'yellow' }, { player: "G. Medel", team: 'B', type: 'red' } ] } }
+                ]
+            },
+            'europa': { 
+                color: '#0A84FF', title: 'Europa', condominio: 'Condomínio B', 
+                teams: [ { pos: 1, name: 'França', flag: '🇫🇷', pts: 21, j: 8, v: 7, e: 0, d: 1, gp: 20, gc: 5, sg: '+15' }, { pos: 2, name: 'Itália', flag: '🇮🇹', pts: 19, j: 8, v: 6, e: 1, d: 1, gp: 16, gc: 6, sg: '+10' }, { pos: 3, name: 'Alemanha', flag: '🇩🇪', pts: 15, j: 8, v: 5, e: 0, d: 3, gp: 14, gc: 9, sg: '+5' }, { pos: 4, name: 'Espanha', flag: '🇪🇸', pts: 14, j: 8, v: 4, e: 2, d: 2, gp: 12, gc: 8, sg: '+4' }, { pos: 5, name: 'Portugal', flag: '🇵🇹', pts: 10, j: 8, v: 3, e: 1, d: 4, gp: 9, gc: 9, sg: '0' } ], 
+                cards: [ { name: "A. Rudiger", team: "Alemanha", flag: "🇩🇪", yellow: 2, red: 0 }, { name: "Pepe", team: "Portugal", flag: "🇵🇹", yellow: 1, red: 1 } ], 
+                suspensions: [ { name: "Pepe", team: "Portugal", flag: "🇵🇹", reason: "Cartão Vermelho", games_left: 2 } ],
+                games: [
+                    // ADICIONADO: Jogo ao vivo extra na Europa para teste
+                    { type: 'live', teamA: 'Alemanha', flagA: '🇩🇪', scoreA: 1, teamB: 'Espanha', flagB: '🇪🇸', scoreB: 1, local: 'Arena B', details: { goals: [{player:"Musiala",team:'A'},{player:"Pedri",team:'B'}], cards: [] } },
+                    { type: 'future', round: 'Rodada 9', date: 'Amanhã, 16:00', teamA: 'Itália', flagA: '🇮🇹', teamB: 'França', flagB: '🇫🇷', local: 'Arena A' },
+                    { type: 'past', round: 'Rodada 8', teamA: 'França', flagA: '🇫🇷', scoreA: 2, teamB: 'Portugal', flagB: '🇵🇹', scoreB: 0, details: { goals: [ { player: "K. Mbappé", team: 'A' }, { player: "O. Giroud", team: 'A' } ], cards: [ { player: "Pepe", team: 'B', type: 'yellow' } ] } }
+                ]
+            },
+            'africa': { 
+                color: '#F39C12', title: 'África', condominio: 'Condomínio C', 
+                teams: [ { pos: 1, name: 'Camarões', flag: '🇨🇲', pts: 13, j: 6, v: 4, e: 1, d: 1, gp: 10, gc: 4, sg: '+6' }, { pos: 2, name: 'Nigéria', flag: '🇳🇬', pts: 11, j: 6, v: 3, e: 2, d: 1, gp: 8, gc: 5, sg: '+3' }, { pos: 3, name: 'Senegal', flag: '🇸🇳', pts: 10, j: 6, v: 3, e: 1, d: 2, gp: 9, gc: 5, sg: '+4' }, { pos: 4, name: 'Egito', flag: '🇪🇬', pts: 8, j: 6, v: 2, e: 2, d: 2, gp: 6, gc: 5, sg: '+1' } ], 
+                cards: [], suspensions: [], 
+                games: [
+                     { type: 'future', round: 'Rodada 7', date: 'Sexta, 18:00', teamA: 'Senegal', flagA: '🇸🇳', teamB: 'Egito', flagB: '🇪🇬', local: 'Campo Central' },
+                     { type: 'past', round: 'Rodada 6', teamA: 'Camarões', flagA: '🇨🇲', scoreA: 1, teamB: 'Nigéria', flagB: '🇳🇬', scoreB: 1, details: { goals: [ { player: "V. Osimhen", team: 'B' }, { player: "V. Aboubakar", team: 'A' } ], cards: [] } }
+                ]
+            },
+            'asia': { 
+                color: '#E74C3C', title: 'Ásia/Oceania', condominio: 'Condomínio D', 
+                teams: [ { pos: 1, name: 'Coreia', flag: '🇰🇷', pts: 16, j: 7, v: 5, e: 1, d: 1, gp: 14, gc: 5, sg: '+9' }, { pos: 2, name: 'Japão', flag: '🇯🇵', pts: 14, j: 7, v: 4, e: 2, d: 1, gp: 13, gc: 6, sg: '+7' }, { pos: 3, name: 'Austrália', flag: '🇦🇺', pts: 13, j: 7, v: 4, e: 1, d: 2, gp: 11, gc: 6, sg: '+5' }, { pos: 4, name: 'Irã', flag: '🇮🇷', pts: 10, j: 7, v: 3, e: 1, d: 3, gp: 8, gc: 6, sg: '+2' } ], 
+                cards: [ { name: "Mehdi Taremi", team: "Irã", flag: "🇮🇷", yellow: 2, red: 0 } ], suspensions: [], 
+                games: [
+                    { type: 'future', round: 'Rodada 8', date: 'Sábado, 10:00', teamA: 'Austrália', flagA: '🇦🇺', teamB: 'Irã', flagB: '🇮🇷', local: 'Estádio D' },
+                    { type: 'past', round: 'Rodada 7', teamA: 'Japão', flagA: '🇯🇵', scoreA: 0, teamB: 'Coreia', flagB: '🇰🇷', scoreB: 1, details: { goals: [ { player: "H. Son", team: 'B' } ], cards: [ { player: "W. Endo", team: 'A', type: 'yellow' } ] } }
+                ]
+            }
+        };
+        let currentContinent = 'americas';
+        let currentSubView = 'classificacao';
+        let currentStatsView = 'artilharia';
+        let selectedPlayerTeam = null; // NOVO: Para controlar qual time foi selecionado na aba "Jogadores"
+
+        // FUNÇÃO AUXILIAR PARA ABREVIAR NOMES EM MOBILE
+        function getShortName(name) {
+            const abbreviations = {
+                'Brasil': 'BRA', 'Argentina': 'ARG', 'Uruguai': 'URU', 'Colômbia': 'COL', 'Chile': 'CHI',
+                'França': 'FRA', 'Itália': 'ITA', 'Alemanha': 'ALE', 'Espanha': 'ESP', 'Portugal': 'POR',
+                'Camarões': 'CMR', 'Nigéria': 'NGA', 'Senegal': 'SEN', 'Egito': 'EGY',
+                'Coreia': 'KOR', 'Japão': 'JPN', 'Austrália': 'AUS', 'Irã': 'IRN'
+            };
+            return abbreviations[name] || name.substring(0, 3).toUpperCase();
+        }
+
+        // --- FUNÇÃO PARA ATUALIZAR STATUS GLOBAL DE JOGOS AO VIVO ---
+        function updateGlobalLiveStatus() {
+            let allLiveGames = [];
+            for (const continentKey in continentsData) {
+                const liveGames = continentsData[continentKey].games.filter(g => g.type === 'live');
+                liveGames.forEach(game => {
+                    allLiveGames.push({ ...game, continentKey, continentName: continentsData[continentKey].title });
+                });
+            }
+
+            // 1. Atualizar indicador (bolinha vermelha) na navegação inferior
+            const navIndicator = document.getElementById('nav-live-indicator');
+            if (allLiveGames.length > 0) {
+                navIndicator.classList.remove('hidden');
+            } else {
+                navIndicator.classList.add('hidden');
+            }
+
+            // 2. Atualizar Banner Global
+            const banner = document.getElementById('global-live-banner');
+            if (allLiveGames.length > 0) {
+                banner.innerHTML = '';
+                allLiveGames.forEach(game => {
+                     // Abreviar nomes para o banner compactado se necessário
+                    const teamA = `<span class="md:hidden">${getShortName(game.teamA)}</span><span class="hidden md:inline">${game.teamA}</span>`;
+                    const teamB = `<span class="md:hidden">${getShortName(game.teamB)}</span><span class="hidden md:inline">${game.teamB}</span>`;
+                    
+                    banner.innerHTML += `
+                        <div onclick="goToLiveGame('${game.continentKey}')" class="cursor-pointer flex items-center justify-between p-3 hover:bg-red-500/5 transition-colors">
+                             <div class="flex items-center gap-3 flex-1 justify-end">
+                                <span class="font-semibold text-sm text-right">${teamA}</span>
+                                <span class="text-xl">${game.flagA}</span>
+                            </div>
+                            <div class="flex flex-col items-center mx-4 shrink-0">
+                                <div class="bg-red-600 text-white font-bold px-3 py-0.5 rounded text-sm mb-1">${game.scoreA} - ${game.scoreB}</div>
+                                <span class="text-[10px] text-red-400 uppercase font-bold tracking-wider animate-pulse flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-red-500 rounded-full inline-block"></span> AO VIVO
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3 flex-1 justify-start">
+                                <span class="text-xl">${game.flagB}</span>
+                                <span class="font-semibold text-sm text-left">${teamB}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                banner.classList.remove('hidden');
+                banner.classList.add('flex');
+            } else {
+                banner.classList.add('hidden');
+                banner.classList.remove('flex');
+            }
+        }
+
+        function goToLiveGame(continentKey) {
+            switchContinent(continentKey);
+            switchView('jogos');
+        }
+
+        // --- RENDERIZAÇÃO ---
+        function renderMainList(continentId) {
+            const data = continentsData[continentId];
+            const listContainer = document.getElementById('main-list');
+            const headerContainer = document.getElementById('table-header');
+            const footerContainer = document.getElementById('table-footer');
+            listContainer.innerHTML = '';
+
+            if (currentSubView === 'classificacao') {
+                headerContainer.innerHTML = `<div class="col-span-1">#</div><div class="col-span-3 text-left pl-2">Time</div><div class="col-span-1" title="Pontos">P</div><div class="col-span-1" title="Jogos">J</div><div class="col-span-1" title="Vitórias">V</div><div class="col-span-1" title="Empates">E</div><div class="col-span-1" title="Derrotas">D</div><div class="col-span-1" title="Gols Pró">GP</div><div class="col-span-1" title="Gols Contra">GC</div><div class="col-span-1" title="Saldo de Gols">SG</div>`;
+                data.teams.forEach((team, index) => {
+                    const isQualified = index < 2;
+                    const baseClasses = "grid grid-cols-12 p-4 items-center text-center transition-all duration-300 animate-fadeIn border-l-4";
+                    const qualifiedClasses = `bg-app-highlight/${index === 0 ? '10' : '5'} border-app-highlight`;
+                    const normalClasses = "hover:bg-[#252525] border-transparent";
+                    
+                    let liveClass = "";
+                    let vClass = "text-gray-400", eClass = "text-gray-400", dClass = "text-gray-400", jClass = "text-gray-400";
+                    if (team.playingNow) {
+                        liveClass = "animate-pulse-red font-bold";
+                        jClass = "animate-pulse-red font-bold";
+                        if (team.liveResult === 'v') vClass = "animate-pulse-red font-bold";
+                        else if (team.liveResult === 'e') eClass = "animate-pulse-red font-bold";
+                        else if (team.liveResult === 'd') dClass = "animate-pulse-red font-bold";
+                    }
+
+                    // ATUALIZADO: Uso de abreviação automática em telas pequenas (md:hidden vs hidden md:inline)
+                    // ATUALIZADO: J, V, E, D, GP, GC, SG uniformizados com text-gray-400 (exceto se live)
+                    let rowHtml = `<div class="${baseClasses} ${isQualified ? qualifiedClasses : normalClasses}">
+                        <div class="col-span-1 ${isQualified ? 'font-bold text-app-highlight' : 'text-gray-500'}">${team.pos}</div>
+                        <div class="col-span-3 text-left pl-2 font-semibold flex items-center gap-2 text-sm truncate">
+                            <span class="w-5 h-5 min-w-[1.25rem] rounded-full bg-[#333] flex items-center justify-center text-[10px]">${team.flag}</span>
+                            <span class="md:hidden" title="${team.name}">${getShortName(team.name)}</span>
+                            <span class="hidden md:inline truncate">${team.name}</span>
+                        </div>
+                        <div class="col-span-1 font-bold ${team.playingNow ? 'animate-pulse-red' : ''}">${team.pts}</div>
+                        <div class="col-span-1 ${jClass}">${team.j}</div>
+                        <div class="col-span-1 ${vClass}">${team.v}</div>
+                        <div class="col-span-1 ${eClass}">${team.e}</div>
+                        <div class="col-span-1 ${dClass}">${team.d}</div>
+                        <div class="col-span-1 text-gray-400">${team.gp}</div>
+                        <div class="col-span-1 text-gray-400">${team.gc}</div>
+                        <div class="col-span-1 text-gray-400">${team.sg}</div>
+                    </div>`;
+                    if (index === 1) rowHtml += `<div class="h-[2px] bg-app-highlight/30 w-full transition-all duration-300"></div>`;
+                    listContainer.innerHTML += rowHtml;
+                });
+                // ATUALIZADO: Removido "Deslize para ver mais"
+                footerContainer.innerHTML = `<div class="w-2 h-2 rounded-full bg-app-highlight transition-colors duration-300"></div><span>Zona de Classificação</span>`;
+            } else if (currentSubView === 'cartoes') {
+                headerContainer.innerHTML = `<div class="col-span-8 text-left pl-4">Jogador</div><div class="col-span-2 text-yellow-500">CA</div><div class="col-span-2 text-red-500">CV</div>`;
+                if (data.cards.length === 0) {
+                     listContainer.innerHTML = `<div class="p-8 text-center text-gray-500 animate-fadeIn">Nenhum cartão registrado.</div>`;
+                } else {
+                    data.cards.forEach(player => {
+                        listContainer.innerHTML += `<div class="grid grid-cols-12 p-4 items-center text-center hover:bg-[#252525] transition-colors border-l-4 border-transparent animate-fadeIn"><div class="col-span-8 text-left pl-2 font-medium text-gray-300 flex flex-col truncate"><span>${player.name}</span><span class="text-[10px] text-gray-500 flex items-center gap-1"><span class="grayscale opacity-70">${player.flag}</span> <span class="md:hidden">${getShortName(player.team)}</span><span class="hidden md:inline">${player.team}</span></span></div><div class="col-span-2 font-semibold text-yellow-500">${player.yellow}</div><div class="col-span-2 font-semibold text-red-500">${player.red}</div></div>`;
+                    });
+                }
+                footerContainer.innerHTML = `<span>CA: Cartões Amarelos • CV: Cartões Vermelhos</span>`;
+            } else if (currentSubView === 'suspensoes') {
+                headerContainer.innerHTML = `<div class="col-span-6 text-left pl-4">Jogador</div><div class="col-span-4 text-left">Motivo</div><div class="col-span-2" title="Jogos Restantes">Jogos</div>`;
+                if (data.suspensions.length === 0) {
+                     listContainer.innerHTML = `<div class="p-8 text-center text-gray-500 animate-fadeIn flex flex-col items-center gap-2"><i data-lucide="shield-check" class="w-8 h-8 opacity-50"></i><span>Nenhum jogador suspenso.</span></div>`;
+                } else {
+                    data.suspensions.forEach(player => {
+                        listContainer.innerHTML += `<div class="grid grid-cols-12 p-4 items-center text-center hover:bg-[#252525] transition-colors border-l-4 border-red-500/50 animate-fadeIn"><div class="col-span-6 text-left pl-2 font-medium text-gray-300 flex flex-col truncate"><span>${player.name}</span><span class="text-[10px] text-gray-500 flex items-center gap-1"><span class="grayscale opacity-70">${player.flag}</span> <span class="md:hidden">${getShortName(player.team)}</span><span class="hidden md:inline">${player.team}</span></span></div><div class="col-span-4 text-left text-xs text-red-400 font-medium truncate">${player.reason}</div><div class="col-span-2 font-bold text-gray-400">${player.games_left}</div></div>`;
+                    });
+                }
+                footerContainer.innerHTML = `<span>Jogadores fora da próxima partida.</span>`;
+            }
+            lucide.createIcons();
+        }
+
+        function renderGames(continentId) {
+             const data = continentsData[continentId];
+             const gamesList = document.getElementById('games-list-container');
+             gamesList.innerHTML = '';
+
+             data.games.forEach(game => {
+                 // ATUALIZADO: Adicionado min-w-0 nos containers flex-1 e truncate nos nomes para evitar quebra de layout
+                 const teamAHTML = `<span class="font-bold text-base sm:text-lg truncate md:hidden" title="${game.teamA}">${getShortName(game.teamA)}</span><span class="font-bold text-base sm:text-lg truncate hidden md:inline">${game.teamA}</span>`;
+                 const teamBHTML = `<span class="font-bold text-base sm:text-lg truncate md:hidden" title="${game.teamB}">${getShortName(game.teamB)}</span><span class="font-bold text-base sm:text-lg truncate hidden md:inline">${game.teamB}</span>`;
+
+                 if (game.type === 'live') {
+                     const gameId = `live-game-${Math.random().toString(36).substr(2, 9)}`;
+                     window[gameId] = game;
+                     gamesList.innerHTML += `
+                        <div class="bg-app-card p-4 rounded-xl border-l-4 border-red-500 shadow-md animate-fadeIn">
+                            <div class="flex justify-between text-xs mb-3 uppercase tracking-wider font-bold items-center">
+                                <span class="text-red-500 flex items-center gap-1.5"><span class="relative flex h-2.5 w-2.5"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span><span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span></span> EM ANDAMENTO</span>
+                            </div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 flex items-center justify-end gap-3 text-right min-w-0">${teamAHTML}<span class="w-8 h-8 bg-[#333] rounded-full flex items-center justify-center text-sm shrink-0">${game.flagA}</span></div>
+                                <div class="px-4 py-2 bg-red-500/10 rounded-lg text-red-500 font-mono font-bold mx-2 text-xl border border-red-500/20 shrink-0">${game.scoreA} - ${game.scoreB}</div>
+                                <div class="flex-1 flex items-center justify-start gap-3 text-left min-w-0"><span class="w-8 h-8 bg-[#333] rounded-full flex items-center justify-center text-sm shrink-0">${game.flagB}</span>${teamBHTML}</div>
+                            </div>
+                            <div class="text-center text-xs text-gray-500 mt-3 pt-3 border-t border-[#333] mb-3">Local: ${game.local}</div>
+                             <div class="text-center">
+                                <button onclick='openStatsModal(window["${gameId}"])' class="text-xs font-bold text-red-500 flex items-center justify-center gap-1 mx-auto hover:bg-red-500/10 py-1.5 px-4 rounded-full transition-colors border border-red-500/30">
+                                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Ver Estatísticas
+                                </button>
+                            </div>
+                        </div>`;
+                 } else if (game.type === 'future') {
+                     gamesList.innerHTML += `
+                        <div class="bg-app-card p-4 rounded-xl border-l-4 border-app-highlight shadow-md animate-fadeIn opacity-90">
+                            <div class="flex justify-between text-xs text-gray-500 mb-3 uppercase tracking-wider font-semibold"><span>${game.round}</span><span>${game.date}</span></div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 flex items-center justify-end gap-3 text-right min-w-0">${teamAHTML}<span class="w-8 h-8 bg-[#333] rounded-full flex items-center justify-center text-sm shrink-0">${game.flagA}</span></div>
+                                <div class="px-4 py-1 bg-[#121212] rounded text-gray-400 font-mono font-bold mx-4 shrink-0">vs</div>
+                                <div class="flex-1 flex items-center justify-start gap-3 text-left min-w-0"><span class="w-8 h-8 bg-[#333] rounded-full flex items-center justify-center text-sm shrink-0">${game.flagB}</span>${teamBHTML}</div>
+                            </div>
+                            <div class="text-center text-xs text-gray-500 mt-3 pt-3 border-t border-[#333]">Local: ${game.local}</div>
+                        </div>`;
+                 } else if (game.type === 'past') {
+                     const gameId = `past-game-${Math.random().toString(36).substr(2, 9)}`;
+                     window[gameId] = game; 
+                     gamesList.innerHTML += `
+                        <div class="bg-app-card p-4 rounded-xl border-l-4 border-[#333] opacity-80 animate-fadeIn">
+                            <div class="flex justify-between text-xs text-gray-500 mb-3 uppercase tracking-wider font-semibold"><span>${game.round}</span><span>Encerrado</span></div>
+                            <div class="flex items-center justify-between">
+                                <div class="flex-1 flex items-center justify-end gap-3 text-right min-w-0"><span class="text-gray-300">${teamAHTML}</span><span class="w-8 h-8 bg-[#333] rounded-full flex items-center justify-center text-sm shrink-0">${game.flagA}</span></div>
+                                <div class="px-4 py-1 bg-[#121212] rounded text-app-highlight font-mono font-bold mx-4 text-xl tracking-widest shrink-0">${game.scoreA} - ${game.scoreB}</div>
+                                <div class="flex-1 flex items-center justify-start gap-3 text-left min-w-0"><span class="w-8 h-8 bg-[#333] rounded-full flex items-center justify-center text-sm shrink-0">${game.flagB}</span><span class="text-gray-300">${teamBHTML}</span></div>
+                            </div>
+                             <div class="text-center mt-4 pt-3 border-t border-[#333]">
+                                <button onclick='openStatsModal(window["${gameId}"])' class="text-xs font-semibold text-app-highlight flex items-center justify-center gap-1 mx-auto hover:bg-[#333] py-1 px-3 rounded-full transition-colors">
+                                    <i data-lucide="bar-chart-2" class="w-4 h-4"></i> Ver Estatísticas
+                                </button>
+                            </div>
+                        </div>`;
+                 }
+             });
+             lucide.createIcons();
+        }
+
+        function renderCopaMatches() {
+            const container = document.getElementById('copa-matches-container');
+            container.innerHTML = '';
+            let currentStage = '';
+            copaMatchesData.forEach(match => {
+                // ATUALIZADO: Abreviação também na Copa
+                const teamAHTML = `<span class="md:hidden" title="${match.teamA}">${getShortName(match.teamA)}</span><span class="hidden md:inline">${match.teamA}</span>`;
+                const teamBHTML = `<span class="md:hidden" title="${match.teamB}">${getShortName(match.teamB)}</span><span class="hidden md:inline">${match.teamB}</span>`;
+
+                if (match.stage !== currentStage && !match.isFinal && match.stage !== 'Disputa de 3º') {
+                    currentStage = match.stage;
+                    container.innerHTML += `<div class="flex justify-center relative z-10 mt-8 mb-4"><h3 class="text-center text-app-gold font-bold uppercase tracking-widest bg-app-bg px-6 py-1 border border-app-gold/30 rounded-full text-xs shadow-gold-glow">${currentStage}</h3></div>`;
+                }
+                let matchHtml = '';
+                if (match.isFinal) {
+                     matchHtml = `<div class="relative z-10 mt-12"><div class="flex justify-center mb-3"><i data-lucide="crown" class="text-app-gold w-10 h-10 animate-bounce drop-shadow-[0_0_10px_rgba(255,215,0,0.5)]"></i></div><h3 class="text-center text-app-gold text-lg font-black uppercase tracking-[0.2em] bg-app-bg relative z-10 inline-block px-8 mx-auto left-[50%] -translate-x-1/2 mb-6 border-2 border-app-gold py-2 rounded-full shadow-[0_0_25px_rgba(255,215,0,0.4)]">GRANDE FINAL</h3><div class="bg-gradient-to-b from-app-gold/30 to-app-card border-2 border-app-gold rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(255,215,0,0.2)] p-1"><div class="bg-app-bg/60 backdrop-blur-md p-6 rounded-xl flex justify-between items-center"><div class="flex flex-col items-center gap-3 flex-1"><div class="w-20 h-20 bg-app-gold/10 rounded-full flex items-center justify-center border-2 border-app-gold/40 shadow-gold-glow"><span class="text-4xl">${match.flagA}</span></div><span class="font-bold text-app-gold text-lg text-center">${teamAHTML}</span></div><div class="flex flex-col items-center px-4"><span class="text-3xl font-black text-app-gold drop-shadow-lg">VS</span><span class="text-xs text-app-gold/80 uppercase mt-2 text-center font-semibold tracking-wider">${match.date}<br>${match.local}</span></div><div class="flex flex-col items-center gap-3 flex-1"><div class="w-20 h-20 bg-app-gold/10 rounded-full flex items-center justify-center border-2 border-app-gold/40 shadow-gold-glow"><span class="text-4xl">${match.flagB}</span></div><span class="font-bold text-app-gold text-lg text-center">${teamBHTML}</span></div></div></div></div>`;
+                } else if (match.stage === 'Disputa de 3º') {
+                    matchHtml = `<div class="relative z-10 mt-10"><h3 class="text-center text-gray-400 text-xs font-bold uppercase tracking-widest bg-app-bg relative z-10 inline-block px-4 py-1 border border-gray-700 rounded-full mx-auto left-[50%] -translate-x-1/2 mb-3">Disputa de 3º Lugar</h3><div class="bg-gradient-to-br from-[#2A2A2A] to-app-card p-4 rounded-xl border border-gray-700 shadow-lg opacity-90"><div class="flex justify-between text-xs text-gray-400 mb-3 uppercase tracking-wider font-semibold"><span>${match.stage}</span><span>${match.date}</span></div><div class="flex items-center justify-between text-gray-300"><div class="flex-1 flex items-center justify-end gap-3 text-right min-w-0"><span class="font-bold text-base truncate">${teamAHTML}</span><span class="text-2xl shrink-0">${match.flagA}</span></div><div class="px-3 py-1 bg-[#1a1a1a] rounded-md font-mono text-xs font-bold mx-4 text-gray-500 shrink-0">VS</div><div class="flex-1 flex items-center justify-start gap-3 text-left min-w-0"><span class="text-2xl shrink-0">${match.flagB}</span><span class="font-bold text-base truncate">${teamBHTML}</span></div></div><div class="text-center text-xs text-gray-600 mt-3 pt-2 border-t border-gray-800">Local: ${match.local}</div></div></div>`;
+                } else if (match.status === 'past') {
+                    matchHtml = `<div class="bg-gradient-to-r from-app-card to-[#252525] p-3 rounded-xl border-l-[6px] border-app-gold/50 shadow-lg relative overflow-hidden"><div class="flex justify-between text-xs text-app-gold/70 mb-2 uppercase tracking-wider font-bold"><span>${match.stage}</span><span>Encerrado</span></div><div class="flex items-center justify-between py-2"><div class="flex-1 flex items-center justify-end gap-3 text-right min-w-0"><span class="font-bold truncate ${match.scoreA > match.scoreB ? 'text-app-gold text-base' : 'text-gray-400'}">${teamAHTML}</span><span class="text-2xl drop-shadow-md shrink-0">${match.flagA}</span></div><div class="px-4 py-2 bg-[#121212] rounded-lg text-app-gold font-mono font-bold mx-2 text-xl shadow-inner border border-app-gold/10 shrink-0">${match.scoreA} - ${match.scoreB}</div><div class="flex-1 flex items-center justify-start gap-3 text-left min-w-0"><span class="text-2xl drop-shadow-md shrink-0">${match.flagB}</span><span class="font-bold truncate ${match.scoreB > match.scoreA ? 'text-app-gold text-base' : 'text-gray-400'}">${teamBHTML}</span></div></div><div class="mt-3 pt-2 border-t border-app-gold/10 flex justify-center"><button onclick="openCopaMatch('${match.id}')" class="text-xs font-bold text-app-gold flex items-center gap-1.5 hover:bg-app-gold/10 px-4 py-1.5 rounded-full transition-all active:scale-95"><i data-lucide="bar-chart-2" class="w-3.5 h-3.5"></i> Ver Estatísticas</button></div></div>`;
+                } else {
+                    matchHtml = `<div class="bg-app-card p-3 rounded-xl border-l-[6px] border-app-gold shadow-md"><div class="flex justify-between text-xs text-gray-400 mb-2 uppercase tracking-wider font-semibold"><span>${match.stage}</span><span class="text-app-gold">${match.date}</span></div><div class="flex items-center justify-between py-2"><div class="flex-1 flex items-center justify-end gap-3 text-right min-w-0"><span class="font-bold text-base truncate">${teamAHTML}</span><span class="text-2xl shrink-0">${match.flagA}</span></div><div class="px-3 py-1 bg-app-gold/20 rounded text-app-gold font-mono text-xs font-bold mx-4 shrink-0">VS</div><div class="flex-1 flex items-center justify-start gap-3 text-left min-w-0"><span class="text-2xl shrink-0">${match.flagB}</span><span class="font-bold text-base truncate">${teamBHTML}</span></div></div><div class="text-center text-xs text-gray-500 mt-3 pt-2 border-t border-[#333]">Local: ${match.local}</div></div>`;
+                }
+                container.innerHTML += matchHtml;
+            });
+            lucide.createIcons();
+        }
+
+        // RENDERIZAR ESTATÍSTICAS GERAIS (ATUALIZADO: AGORA COM NOVA ABA JOGADORES)
+        function renderStats() {
+            const list = document.getElementById('stats-list');
+            const header = document.getElementById('stats-table-header');
+            list.innerHTML = '';
+
+            if (currentStatsView === 'artilharia') {
+                header.classList.remove('hidden');
+                header.innerHTML = `<div class="col-span-2">Pos</div><div class="col-span-7 text-left pl-2">Jogador</div><div class="col-span-3">Gols</div>`;
+                generalScorers.forEach((p, i) => {
+                    list.innerHTML += `<div class="grid grid-cols-12 p-4 items-center text-center hover:bg-app-gold/5 transition-colors ${i < 3 ? 'font-semibold' : 'text-gray-400'} animate-fadeIn"><div class="col-span-2 ${i === 0 ? 'text-app-gold text-lg' : ''}">${p.pos}º</div><div class="col-span-7 text-left pl-2 flex flex-col truncate"><span class="text-gray-200 truncate">${p.name}</span><span class="text-[10px] text-gray-500 flex items-center gap-1"><span class="grayscale opacity-70">${p.flag}</span> <span class="md:hidden">${getShortName(p.team)}</span><span class="hidden md:inline">${p.team}</span></span></div><div class="col-span-3 font-bold text-app-gold">${p.goals}</div></div>`;
+                });
+            } else if (currentStatsView === 'cartoes_geral') { // cartoes_geral (SEM POSIÇÃO)
+                header.classList.remove('hidden');
+                header.innerHTML = `<div class="col-span-8 text-left pl-4">Seleção</div><div class="col-span-2 text-yellow-500">CA</div><div class="col-span-2 text-red-500">CV</div>`;
+                generalTeamCards.forEach((t, i) => {
+                    const teamName = t.team || t.name;
+                    list.innerHTML += `<div class="grid grid-cols-12 p-4 items-center text-center hover:bg-app-gold/5 transition-colors animate-fadeIn"><div class="col-span-8 text-left pl-4 flex items-center gap-3 truncate"><span class="text-2xl shrink-0">${t.flag}</span><span class="font-semibold text-gray-200 truncate"><span class="md:hidden">${getShortName(teamName)}</span><span class="hidden md:inline">${teamName}</span></span></div><div class="col-span-2 font-semibold text-yellow-500">${t.yellow}</div><div class="col-span-2 font-semibold text-red-500">${t.red}</div></div>`;
+                });
+            } else if (currentStatsView === 'jogadores') {
+                // NOVA VISÃO: JOGADORES (ELENCOS)
+                if (selectedPlayerTeam === null) {
+                     // MODO 1: LISTA DE TIMES
+                    header.classList.add('hidden'); // Esconde header padrão
+                    const teamsList = Object.keys(mockPlayersData);
+                    teamsList.forEach(teamName => {
+                         const teamData = mockPlayersData[teamName];
+                         list.innerHTML += `
+                            <div onclick="viewTeamPlayers('${teamName}')" class="p-4 flex items-center justify-between hover:bg-[#252525] cursor-pointer transition-colors animate-fadeIn">
+                                <div class="flex items-center gap-4">
+                                    <span class="text-3xl">${teamData.flag}</span>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold text-lg">${teamName}</span>
+                                        <span class="text-xs text-app-gold/70">Exibir jogadores</span>
+                                    </div>
+                                </div>
+                                <i data-lucide="chevron-right" class="w-5 h-5 text-gray-500"></i>
+                            </div>
+                         `;
+                    });
+                } else {
+                    // MODO 2: LISTA DE JOGADORES DO TIME SELECIONADO
+                    header.classList.remove('hidden');
+                    // Botão de voltar no header da tabela
+                    header.innerHTML = `<div class="col-span-12 flex items-center gap-3 text-left pl-2"><button onclick="backToTeamList()" class="p-1 -ml-1 text-app-gold hover:bg-app-gold/10 rounded-full"><i data-lucide="arrow-left" class="w-5 h-5"></i></button><span class="text-2xl">${mockPlayersData[selectedPlayerTeam].flag}</span><span class="text-app-gold">${selectedPlayerTeam}</span></div>`;
+                    
+                    const players = mockPlayersData[selectedPlayerTeam].players;
+                    players.forEach(player => {
+                         list.innerHTML += `
+                            <div class="flex items-center p-4 hover:bg-[#252525] transition-colors animate-fadeIn gap-4">
+                                <!-- Placeholder de Foto (Círculo com Inicial) -->
+                                <div class="w-12 h-12 bg-[#333] rounded-full flex items-center justify-center text-xl font-bold text-gray-500 border-2 border-[#444] overflow-hidden shrink-0">
+                                    ${player.photo}
+                                </div>
+                                <div class="font-mono text-xl text-app-gold/50 w-8 text-center shrink-0">${player.num}</div>
+                                <div class="font-semibold text-lg truncate">${player.name}</div>
+                            </div>
+                         `;
+                    });
+                }
+            }
+            lucide.createIcons();
+        }
+
+        // NOVAS FUNÇÕES PARA NAVEGAÇÃO DOS JOGADORES
+        function viewTeamPlayers(teamName) {
+            selectedPlayerTeam = teamName;
+            renderStats();
+        }
+        function backToTeamList() {
+            selectedPlayerTeam = null;
+            renderStats();
+        }
+
+        // --- MODAL (ATUALIZADO: GOLS E CARTÕES EM COLUNAS E AGRUPADOS) ---
+        function openCopaMatch(matchId) {
+            const match = copaMatchesData.find(m => m.id === matchId);
+            if (match && match.status === 'past') openStatsModal(match);
+        }
+        function openStatsModal(data) {
+            document.getElementById('modal-teamA').innerText = data.teamA; document.getElementById('modal-flagA').innerText = data.flagA;
+            document.getElementById('modal-teamB').innerText = data.teamB; document.getElementById('modal-flagB').innerText = data.flagB;
+            document.getElementById('modal-score').innerText = `${data.scoreA} - ${data.scoreB}`;
+            
+            // GOLS
+            const goalsAContainer = document.getElementById('modal-goals-teamA');
+            const goalsBContainer = document.getElementById('modal-goals-teamB');
+            goalsAContainer.innerHTML = ''; goalsBContainer.innerHTML = '';
+            
+            if (!data.details.goals.length) {
+                document.getElementById('modal-goals-empty').classList.remove('hidden');
+                document.getElementById('modal-goals-container').classList.add('hidden');
+            } else {
+                document.getElementById('modal-goals-empty').classList.add('hidden');
+                document.getElementById('modal-goals-container').classList.remove('hidden');
+                
+                // Agrupar gols por jogador
+                const aggregatedGoals = { A: {}, B: {} };
+                data.details.goals.forEach(goal => {
+                    let cleanName = goal.player.replace(' (P)', ''); // Remover (P)
+                    if (!aggregatedGoals[goal.team][cleanName]) aggregatedGoals[goal.team][cleanName] = 0;
+                    aggregatedGoals[goal.team][cleanName]++;
+                });
+
+                // Renderizar Time A (Esquerda) - ATUALIZADO: Usando bg-[#333] e text-gray-400 para igualar ao Time B
+                for (const player in aggregatedGoals.A) {
+                    const count = aggregatedGoals.A[player];
+                    goalsAContainer.innerHTML += `<div class="flex justify-start"><div class="bg-[#333] px-3 py-1.5 rounded-full flex items-center gap-2 max-w-full"><span class="font-semibold truncate">${player} ${count > 1 ? `(x${count})` : ''}</span><i data-lucide="football" class="w-3 h-3 text-gray-400 shrink-0"></i></div></div>`;
+                }
+                // Renderizar Time B (Direita)
+                 for (const player in aggregatedGoals.B) {
+                    const count = aggregatedGoals.B[player];
+                    goalsBContainer.innerHTML += `<div class="flex justify-end"><div class="bg-[#333] px-3 py-1.5 rounded-full flex items-center gap-2 flex-row-reverse max-w-full"><span class="font-semibold truncate">${player} ${count > 1 ? `(x${count})` : ''}</span><i data-lucide="football" class="w-3 h-3 text-gray-400 shrink-0"></i></div></div>`;
+                }
+            }
+
+            // CARTÕES (Mesma lógica de colunas para consistência)
+            const cardsAContainer = document.getElementById('modal-cards-teamA');
+            const cardsBContainer = document.getElementById('modal-cards-teamB');
+            cardsAContainer.innerHTML = ''; cardsBContainer.innerHTML = '';
+
+             if (!data.details.cards.length) {
+                document.getElementById('modal-cards-empty').classList.remove('hidden');
+                document.getElementById('modal-cards-container').classList.add('hidden');
+            } else {
+                document.getElementById('modal-cards-empty').classList.add('hidden');
+                document.getElementById('modal-cards-container').classList.remove('hidden');
+                
+                data.details.cards.forEach(card => {
+                     const cardHtml = `<div class="flex ${card.team === 'A' ? 'justify-start' : 'justify-end'}"><div class="bg-[#2A2A2A] px-3 py-1 rounded flex items-center gap-2 border-l-2 ${card.team === 'A' ? 'border-app-highlight' : 'border-gray-500'} ${card.team === 'B' ? 'flex-row-reverse border-l-0 border-r-2' : ''} max-w-full"><span class="truncate">${card.player}</span><div class="w-3 h-4 rounded-sm ${card.type === 'yellow' ? 'bg-yellow-500' : 'bg-red-500'} shrink-0"></div></div></div>`;
+                     if (card.team === 'A') cardsAContainer.innerHTML += cardHtml;
+                     else cardsBContainer.innerHTML += cardHtml;
+                });
+            }
+
+            lucide.createIcons(); document.getElementById('match-stats-modal').classList.remove('hidden');
+        }
+        function closeMatchStats() { document.getElementById('match-stats-modal').classList.add('hidden'); }
+
+        // --- NAVEGAÇÃO ---
+        function switchSubView(subView) {
+            currentSubView = subView;
+            document.getElementById('sub-btn-classificacao').className = subView === 'classificacao' ? 'flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md bg-app-highlight text-app-bg transition-all duration-300' : 'flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300';
+            document.getElementById('sub-btn-cartoes').className = subView === 'cartoes' ? 'flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md bg-app-highlight text-app-bg transition-all duration-300' : 'flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300';
+            document.getElementById('sub-btn-suspensoes').className = subView === 'suspensoes' ? 'flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md bg-app-highlight text-app-bg transition-all duration-300' : 'flex-1 py-2 text-[11px] sm:text-xs font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300';
+            renderMainList(currentContinent);
+        }
+
+        // NOVA FUNÇÃO DE NAVEGAÇÃO PARA A ABA ESTATÍSTICAS (ATUALIZADA COM 3 BOTÕES)
+        function switchStatsView(statsView) {
+            currentStatsView = statsView;
+            selectedPlayerTeam = null; // Reseta seleção de time ao mudar de aba principal
+            document.getElementById('stats-btn-artilharia').className = statsView === 'artilharia' ? 'flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md bg-app-gold text-app-bg transition-all duration-300' : 'flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300';
+            document.getElementById('stats-btn-cartoes_geral').className = statsView === 'cartoes_geral' ? 'flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md bg-app-gold text-app-bg transition-all duration-300' : 'flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300';
+            document.getElementById('stats-btn-jogadores').className = statsView === 'jogadores' ? 'flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md bg-app-gold text-app-bg transition-all duration-300' : 'flex-1 py-2 text-[11px] sm:text-sm font-semibold rounded-md text-gray-400 hover:text-white transition-all duration-300';
+            renderStats();
+        }
+
+        function switchView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden-view'));
+            document.getElementById(`view-${viewName}`).classList.remove('hidden-view');
+            document.querySelectorAll('.nav-item').forEach(el => el.className = el.className.replace('text-app-highlight', 'text-gray-500').replace('text-app-gold', 'text-gray-500'));
+            document.getElementById('nav-copa').className = 'flex items-center justify-center bg-[#2A2A2A] text-gray-500 w-14 h-14 rounded-full -mt-8 border-4 border-app-bg shadow-lg shadow-black/50 transition-all duration-300';
+
+            if (viewName === 'tabelas') document.getElementById('nav-tabelas').classList.add('text-app-highlight');
+            if (viewName === 'jogos') document.getElementById('nav-jogos').classList.add('text-app-highlight');
+            if (viewName === 'stats') document.getElementById('nav-stats').classList.add('text-app-gold'); // Dourado para Stats
+            if (viewName === 'copa') {
+                document.getElementById('nav-copa').className = 'flex items-center justify-center bg-app-gold text-app-bg w-14 h-14 rounded-full -mt-8 border-4 border-app-bg shadow-lg shadow-black/50 transition-all duration-300';
+                renderCopaMatches();
+            }
+
+            const continentNav = document.getElementById('continent-nav');
+            if (viewName === 'tabelas' || viewName === 'jogos') {
+                continentNav.style.opacity = '1'; continentNav.style.height = 'auto'; continentNav.style.paddingTop = '1rem'; continentNav.style.paddingBottom = '1rem';
+                switchContinent(currentContinent, false); 
+            } else {
+                continentNav.style.opacity = '0'; continentNav.style.height = '0'; continentNav.style.paddingTop = '0'; continentNav.style.paddingBottom = '0';
+            }
+            if (viewName === 'stats') renderStats();
+        }
+
+        function switchContinent(continentId, updateView = true) {
+            currentContinent = continentId;
+            const data = continentsData[continentId]; if (!data) return;
+            document.documentElement.style.setProperty('--color-destaque', data.color);
+            document.getElementById('section-title').innerText = `Classificação - ${data.title}`;
+            document.getElementById('games-title').innerText = `Jogos - ${data.title}`;
+            document.getElementById('condominio-name').innerText = `${data.condominio} - Fase de Grupos`;
+            renderMainList(continentId); renderGames(continentId);
+            updateGlobalLiveStatus(); // ATUALIZADO: Chama a função de status global
+            document.querySelectorAll('.continent-tab').forEach(tab => {
+                tab.className = 'continent-tab inactive-tab px-4 py-2 rounded-full font-medium text-sm transition-all duration-300 bg-app-card text-gray-400 border-transparent';
+                tab.querySelector('.dot').classList.add('hidden');
+            });
+            const activeTab = document.getElementById(`tab-${continentId}`);
+            activeTab.className = 'continent-tab active-tab px-4 py-2 rounded-full font-semibold text-sm flex items-center gap-2 transition-all duration-300 bg-app-highlight/20 text-app-highlight border-app-highlight';
+            activeTab.querySelector('.dot').classList.remove('hidden');
+        }
+
+        // Inicialização
+        switchContinent('americas');
+    </script>
+</body>
+</html>
