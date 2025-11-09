@@ -152,6 +152,43 @@
                 </div>
             </div>
         </section>
+
+        <!-- NOVA VISÃO 5: LOGIN -->
+        <section id="view-login" class="view-section hidden-view flex flex-col items-center justify-center py-12 animate-fadeIn">
+            <div class="bg-app-card p-8 rounded-2xl shadow-2xl border border-[#333] w-full max-w-sm">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-app-gold/10 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-app-gold shadow-gold-glow">
+                        <i data-lucide="lock" class="w-10 h-10 text-app-gold"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-app-gold tracking-widest">ÁREA RESTRITA</h2>
+                    <p class="text-gray-500 text-sm mt-2">Faça login para gerenciar</p>
+                </div>
+                <form class="space-y-6" onsubmit="event.preventDefault(); alert('Simulação de Login: Sucesso!'); switchView('tabelas');">
+                    <div class="space-y-2">
+                        <label for="username" class="text-sm font-semibold text-gray-300 uppercase tracking-wider ml-1">Usuário</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="user" class="h-5 w-5 text-gray-500"></i>
+                            </div>
+                            <input type="text" id="username" class="bg-[#121212] border border-[#333] text-gray-100 text-sm rounded-lg focus:ring-app-gold focus:border-app-gold block w-full pl-10 p-3 transition-all outline-none" placeholder="Digite seu usuário" required>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                         <label for="password" class="text-sm font-semibold text-gray-300 uppercase tracking-wider ml-1">Senha</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i data-lucide="key" class="h-5 w-5 text-gray-500"></i>
+                            </div>
+                            <input type="password" id="password" class="bg-[#121212] border border-[#333] text-gray-100 text-sm rounded-lg focus:ring-app-gold focus:border-app-gold block w-full pl-10 p-3 transition-all outline-none" placeholder="••••••••" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full text-[#121212] bg-app-gold hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-bold rounded-lg text-sm px-5 py-3.5 text-center transition-all active:scale-95 uppercase tracking-widest shadow-lg">
+                        ENTRAR
+                    </button>
+                    <!-- ATUALIZADO: Removido link "Esqueci minha senha" -->
+                </form>
+            </div>
+        </section>
     </main>
 
     <!-- MODAL ESTATÍSTICAS DE JOGO -->
@@ -202,8 +239,8 @@
         </button>
         <div class="w-1/5 flex justify-center"><button onclick="switchView('copa')" id="nav-copa" class="flex items-center justify-center bg-[#2A2A2A] text-gray-500 w-14 h-14 rounded-full -mt-8 border-4 border-app-bg shadow-lg shadow-black/50 transition-all duration-300"><i data-lucide="trophy" class="w-7 h-7"></i></button></div>
         <button onclick="switchView('stats')" id="nav-stats" class="nav-item flex flex-col items-center text-gray-500 gap-1 w-1/5"><i data-lucide="bar-chart-3" class="w-6 h-6"></i><span>Estatísticas</span></button>
-        <!-- BOTÃO LOGIN ATUALIZADO -->
-        <button class="nav-item flex flex-col items-center text-gray-500 gap-1 w-1/5"><i data-lucide="log-in" class="w-6 h-6"></i><span>Login</span></button>
+        <!-- BOTÃO LOGIN ATUALIZADO PARA CHAMAR switchView('login') -->
+        <button onclick="switchView('login')" id="nav-login" class="nav-item flex flex-col items-center text-gray-500 gap-1 w-1/5"><i data-lucide="log-in" class="w-6 h-6"></i><span>Login</span></button>
     </nav>
 
     <script>
@@ -287,7 +324,8 @@
             },
             'europa': { 
                 color: '#0A84FF', title: 'Europa', condominio: 'Condomínio B', 
-                teams: [ { pos: 1, name: 'França', flag: '🇫🇷', pts: 21, j: 8, v: 7, e: 0, d: 1, gp: 20, gc: 5, sg: '+15' }, { pos: 2, name: 'Itália', flag: '🇮🇹', pts: 19, j: 8, v: 6, e: 1, d: 1, gp: 16, gc: 6, sg: '+10' }, { pos: 3, name: 'Alemanha', flag: '🇩🇪', pts: 15, j: 8, v: 5, e: 0, d: 3, gp: 14, gc: 9, sg: '+5' }, { pos: 4, name: 'Espanha', flag: '🇪🇸', pts: 14, j: 8, v: 4, e: 2, d: 2, gp: 12, gc: 8, sg: '+4' }, { pos: 5, name: 'Portugal', flag: '🇵🇹', pts: 10, j: 8, v: 3, e: 1, d: 4, gp: 9, gc: 9, sg: '0' } ], 
+                // ATUALIZADO: Adicionado playingNow: true para Alemanha e Espanha (empate 'e') para corrigir bug de exibição
+                teams: [ { pos: 1, name: 'França', flag: '🇫🇷', pts: 21, j: 8, v: 7, e: 0, d: 1, gp: 20, gc: 5, sg: '+15' }, { pos: 2, name: 'Itália', flag: '🇮🇹', pts: 19, j: 8, v: 6, e: 1, d: 1, gp: 16, gc: 6, sg: '+10' }, { pos: 3, name: 'Alemanha', flag: '🇩🇪', pts: 15, j: 8, v: 5, e: 0, d: 3, gp: 14, gc: 9, sg: '+5', playingNow: true, liveResult: 'e' }, { pos: 4, name: 'Espanha', flag: '🇪🇸', pts: 14, j: 8, v: 4, e: 2, d: 2, gp: 12, gc: 8, sg: '+4', playingNow: true, liveResult: 'e' }, { pos: 5, name: 'Portugal', flag: '🇵🇹', pts: 10, j: 8, v: 3, e: 1, d: 4, gp: 9, gc: 9, sg: '0' } ], 
                 cards: [ { name: "A. Rudiger", team: "Alemanha", flag: "🇩🇪", yellow: 2, red: 0 }, { name: "Pepe", team: "Portugal", flag: "🇵🇹", yellow: 1, red: 1 } ], 
                 suspensions: [ { name: "Pepe", team: "Portugal", flag: "🇵🇹", reason: "Cartão Vermelho", games_left: 2 } ],
                 games: [
@@ -299,19 +337,23 @@
             },
             'africa': { 
                 color: '#F39C12', title: 'África', condominio: 'Condomínio C', 
-                teams: [ { pos: 1, name: 'Camarões', flag: '🇨🇲', pts: 13, j: 6, v: 4, e: 1, d: 1, gp: 10, gc: 4, sg: '+6' }, { pos: 2, name: 'Nigéria', flag: '🇳🇬', pts: 11, j: 6, v: 3, e: 2, d: 1, gp: 8, gc: 5, sg: '+3' }, { pos: 3, name: 'Senegal', flag: '🇸🇳', pts: 10, j: 6, v: 3, e: 1, d: 2, gp: 9, gc: 5, sg: '+4' }, { pos: 4, name: 'Egito', flag: '🇪🇬', pts: 8, j: 6, v: 2, e: 2, d: 2, gp: 6, gc: 5, sg: '+1' } ], 
+                // ATUALIZADO: Adicionado playingNow para Senegal e Egito
+                teams: [ { pos: 1, name: 'Camarões', flag: '🇨🇲', pts: 13, j: 6, v: 4, e: 1, d: 1, gp: 10, gc: 4, sg: '+6' }, { pos: 2, name: 'Nigéria', flag: '🇳🇬', pts: 11, j: 6, v: 3, e: 2, d: 1, gp: 8, gc: 5, sg: '+3' }, { pos: 3, name: 'Senegal', flag: '🇸🇳', pts: 10, j: 6, v: 3, e: 1, d: 2, gp: 9, gc: 5, sg: '+4', playingNow: true, liveResult: 'v' }, { pos: 4, name: 'Egito', flag: '🇪🇬', pts: 8, j: 6, v: 2, e: 2, d: 2, gp: 6, gc: 5, sg: '+1', playingNow: true, liveResult: 'd' } ], 
                 cards: [], suspensions: [], 
                 games: [
-                     { type: 'future', round: 'Rodada 7', date: 'Sexta, 18:00', teamA: 'Senegal', flagA: '🇸🇳', teamB: 'Egito', flagB: '🇪🇬', local: 'Campo Central' },
+                     // ATUALIZADO: Jogo ao vivo na África
+                     { type: 'live', teamA: 'Senegal', flagA: '🇸🇳', scoreA: 1, teamB: 'Egito', flagB: '🇪🇬', scoreB: 0, local: 'Campo Central', details: { goals: [{player:"S. Mané",team:'A'}], cards: [{player:"M. Elneny",team:'B',type:'yellow'}] } },
                      { type: 'past', round: 'Rodada 6', teamA: 'Camarões', flagA: '🇨🇲', scoreA: 1, teamB: 'Nigéria', flagB: '🇳🇬', scoreB: 1, details: { goals: [ { player: "V. Osimhen", team: 'B' }, { player: "V. Aboubakar", team: 'A' } ], cards: [] } }
                 ]
             },
             'asia': { 
                 color: '#E74C3C', title: 'Ásia/Oceania', condominio: 'Condomínio D', 
-                teams: [ { pos: 1, name: 'Coreia', flag: '🇰🇷', pts: 16, j: 7, v: 5, e: 1, d: 1, gp: 14, gc: 5, sg: '+9' }, { pos: 2, name: 'Japão', flag: '🇯🇵', pts: 14, j: 7, v: 4, e: 2, d: 1, gp: 13, gc: 6, sg: '+7' }, { pos: 3, name: 'Austrália', flag: '🇦🇺', pts: 13, j: 7, v: 4, e: 1, d: 2, gp: 11, gc: 6, sg: '+5' }, { pos: 4, name: 'Irã', flag: '🇮🇷', pts: 10, j: 7, v: 3, e: 1, d: 3, gp: 8, gc: 6, sg: '+2' } ], 
+                // ATUALIZADO: Adicionado playingNow para Austrália e Irã
+                teams: [ { pos: 1, name: 'Coreia', flag: '🇰🇷', pts: 16, j: 7, v: 5, e: 1, d: 1, gp: 14, gc: 5, sg: '+9' }, { pos: 2, name: 'Japão', flag: '🇯🇵', pts: 14, j: 7, v: 4, e: 2, d: 1, gp: 13, gc: 6, sg: '+7' }, { pos: 3, name: 'Austrália', flag: '🇦🇺', pts: 13, j: 7, v: 4, e: 1, d: 2, gp: 11, gc: 6, sg: '+5', playingNow: true, liveResult: 'e' }, { pos: 4, name: 'Irã', flag: '🇮🇷', pts: 10, j: 7, v: 3, e: 1, d: 3, gp: 8, gc: 6, sg: '+2', playingNow: true, liveResult: 'e' } ], 
                 cards: [ { name: "Mehdi Taremi", team: "Irã", flag: "🇮🇷", yellow: 2, red: 0 } ], suspensions: [], 
                 games: [
-                    { type: 'future', round: 'Rodada 8', date: 'Sábado, 10:00', teamA: 'Austrália', flagA: '🇦🇺', teamB: 'Irã', flagB: '🇮🇷', local: 'Estádio D' },
+                    // ATUALIZADO: Jogo ao vivo na Ásia
+                    { type: 'live', teamA: 'Austrália', flagA: '🇦🇺', scoreA: 2, teamB: 'Irã', flagB: '🇮🇷', scoreB: 2, local: 'Estádio D', details: { goals: [{player:"Duke",team:'A'},{player:"Azmoun",team:'B'},{player:"Taremi",team:'B'},{player:"Irvine",team:'A'}], cards: [] } },
                     { type: 'past', round: 'Rodada 7', teamA: 'Japão', flagA: '🇯🇵', scoreA: 0, teamB: 'Coreia', flagB: '🇰🇷', scoreB: 1, details: { goals: [ { player: "H. Son", team: 'B' } ], cards: [ { player: "W. Endo", team: 'A', type: 'yellow' } ] } }
                 ]
             }
@@ -722,18 +764,22 @@
             if (viewName === 'tabelas') document.getElementById('nav-tabelas').classList.add('text-app-highlight');
             if (viewName === 'jogos') document.getElementById('nav-jogos').classList.add('text-app-highlight');
             if (viewName === 'stats') document.getElementById('nav-stats').classList.add('text-app-gold'); // Dourado para Stats
+            if (viewName === 'login') document.getElementById('nav-login').classList.add('text-app-gold'); // Dourado para Login
+
             if (viewName === 'copa') {
                 document.getElementById('nav-copa').className = 'flex items-center justify-center bg-app-gold text-app-bg w-14 h-14 rounded-full -mt-8 border-4 border-app-bg shadow-lg shadow-black/50 transition-all duration-300';
                 renderCopaMatches();
             }
 
             const continentNav = document.getElementById('continent-nav');
+            // Mostrar navegação de continentes APENAS nas abas 'tabelas' e 'jogos'
             if (viewName === 'tabelas' || viewName === 'jogos') {
                 continentNav.style.opacity = '1'; continentNav.style.height = 'auto'; continentNav.style.paddingTop = '1rem'; continentNav.style.paddingBottom = '1rem';
                 switchContinent(currentContinent, false); 
             } else {
                 continentNav.style.opacity = '0'; continentNav.style.height = '0'; continentNav.style.paddingTop = '0'; continentNav.style.paddingBottom = '0';
             }
+            
             if (viewName === 'stats') renderStats();
         }
 
